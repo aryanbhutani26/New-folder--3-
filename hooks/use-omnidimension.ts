@@ -5,7 +5,7 @@ import { OmniDimensionSDK } from "@/lib/omnidimension-sdk"
 import { WebSocketClient } from "@/lib/websocket-client"
 import { useToast } from "@/hooks/use-toast"
 
-const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+const SpeechRecognition = typeof window !== 'undefined' ? ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition) : null
 
 interface Agent {
   id: string
@@ -404,7 +404,7 @@ export function useOmniDimension() {
   }
 
   const startVoiceRecording = async () => {
-    if (SpeechRecognition) {
+    if (typeof window !== 'undefined' && SpeechRecognition) {
       if (!recognitionRef.current) {
         recognitionRef.current = new SpeechRecognition()
         recognitionRef.current.continuous = true
