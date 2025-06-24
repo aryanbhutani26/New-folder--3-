@@ -346,6 +346,99 @@ export function useOmniDimension() {
 
       const result = await response.json()
 
+      // Check if it's a "email" command
+
+
+      if (command.toLowerCase().startsWith("send email")) {
+  // Example: send email to john@example.com with subject "Hi" and message "Hello John"
+  const match = command.match(
+    /send email to ([^ ]+) with subject ['"](.+?)['"] and message ['"](.+?)['"]/i
+  )
+
+  if (match) {
+    const [, to, subject, content] = match
+
+    const emailRes = await fetch("/api/sendgrid/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to, subject, content }),
+    })
+
+    const emailResult = await emailRes.json()
+
+    if (emailResult.success) {
+      addLogEntry("success", `Email sent to ${to} with subject "${subject}"`)
+      toast({
+        title: "Email Sent",
+        description: `Email sent to ${to}`,
+        className: "bg-slate-800 border-slate-700 text-white",
+      })
+    } else {
+      addLogEntry("error", `Email failed: ${emailResult.error}`)
+      toast({
+        title: "Email Failed",
+        description: emailResult.error,
+        className: "bg-red-900 border-red-700 text-white",
+      })
+    }
+
+    return emailResult
+  } else {
+    addLogEntry("error", `Invalid email command format`)
+    throw new Error("Invalid email command format")
+  }
+}
+
+      // Check if it's a "Call" command
+const callRegex = /call\s+(\+?\d{10,15})(?:\s+and\s+say\s+(.+))?/i
+const match = command.match(callRegex)
+
+if (match) {
+  const phoneNumber = match[1]
+  const message =
+    match[2] ||
+    "Hello! This is an automated call from OmniDimension AI Agent. Thank you for using our services."
+
+  try {
+    const res = await fetch("/api/twilio/call", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to: "+918882302389" }),
+    })
+
+    const data = await res.json()
+
+    if (data.success) {
+      addLogEntry("success", `Call to ${phoneNumber} initiated (SID: ${data.callSid})`)
+      toast({
+        title: "Call Initiated",
+        description: `Calling ${phoneNumber}`,
+        className: "bg-slate-800 border-slate-700 text-white",
+      })
+    } else {
+      addLogEntry("error", `Call failed: ${data.error}`)
+      toast({
+        title: "Call Failed",
+        description: data.error || "Unable to initiate call.",
+        className: "bg-red-900 border-red-700 text-white",
+      })
+    }
+
+    return data
+  } catch (err) {
+    console.error("Error calling Twilio API:", err)
+    addLogEntry("error", `Twilio API error: ${err}`)
+    toast({
+      title: "Twilio API Error",
+      description: "Failed to make the call. Please check server logs.",
+      className: "bg-red-900 border-red-700 text-white",
+    })
+    throw err
+  }
+}
+console.log("TWILIO_ACCOUNT_SID:", process.env.TWILIO_ACCOUNT_SID);
+
+
       // Add new task
       const newTask: Task = {
         id: result.taskId,
