@@ -5,7 +5,14 @@ import { OmniDimensionSDK } from "@/lib/omnidimension-sdk"
 import { WebSocketClient } from "@/lib/websocket-client"
 import { useToast } from "@/hooks/use-toast"
 
-const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+let SpeechRecognition: any;
+
+if (typeof window !== "undefined") {
+  SpeechRecognition =
+    (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+}
+
+// const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
 
 interface Agent {
   id: string
