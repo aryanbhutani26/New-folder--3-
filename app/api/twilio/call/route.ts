@@ -5,7 +5,8 @@ import twilio from "twilio";
 
 export async function POST(req: Request) {
   try {
-    const { to } = await req.json();
+    const { to, message } = await req.json()
+
 
     if (!to) {
       return NextResponse.json({ success: false, error: "Missing 'to' number" }, { status: 400 });
@@ -23,9 +24,10 @@ export async function POST(req: Request) {
     const client = twilio(sid, token);
 
     const call = await client.calls.create({
-      twiml: "<Response><Say>Hello from OmniDimension</Say></Response>",
       to,
       from,
+      twiml: "<Response><Say>Hello! This is an automated call from OmniDimension AI Agent. Thank you for using our services.</Say></Response>",
+      
     });
 
     return NextResponse.json({ success: true, sid: call.sid });

@@ -410,13 +410,13 @@ if (match) {
     const res = await fetch("/api/twilio/call", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to: "+918882302389" }),
+      body: JSON.stringify({  to: phoneNumber, message  }),
     })
 
     const data = await res.json()
 
     if (data.success) {
-      addLogEntry("success", `Call to ${phoneNumber} initiated (SID: ${data.callSid})`)
+      addLogEntry("success", `Call to ${phoneNumber} initiated `)
       toast({
         title: "Call Initiated",
         description: `Calling ${phoneNumber}`,
